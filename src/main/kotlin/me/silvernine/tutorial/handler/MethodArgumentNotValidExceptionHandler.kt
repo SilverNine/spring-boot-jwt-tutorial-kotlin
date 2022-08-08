@@ -1,6 +1,6 @@
 package me.silvernine.tutorial.handler
 
-import me.silvernine.tutorial.dto.ErrorDTO
+import me.silvernine.tutorial.dto.ErrorDto
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
@@ -19,14 +19,14 @@ class MethodArgumentNotValidExceptionHandler {
     @ExceptionHandler(
         MethodArgumentNotValidException::class
     )
-    fun methodArgumentNotValidException(ex: MethodArgumentNotValidException): ErrorDTO {
+    fun methodArgumentNotValidException(ex: MethodArgumentNotValidException): ErrorDto {
         val result = ex.bindingResult
         val fieldErrors = result.fieldErrors
         return processFieldErrors(fieldErrors)
     }
 
-    private fun processFieldErrors(fieldErrors: List<FieldError>): ErrorDTO {
-        val errorDTO = ErrorDTO(HttpStatus.BAD_REQUEST.value(), "@Valid Error")
+    private fun processFieldErrors(fieldErrors: List<FieldError>): ErrorDto {
+        val errorDTO = ErrorDto(HttpStatus.BAD_REQUEST.value(), "@Valid Error")
         for (fieldError in fieldErrors) {
             errorDTO.addFieldError(fieldError.objectName, fieldError.field, fieldError.defaultMessage)
         }
