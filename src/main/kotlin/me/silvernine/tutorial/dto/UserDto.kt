@@ -1,8 +1,6 @@
 package me.silvernine.tutorial.dto
 
-import me.silvernine.tutorial.entity.Authority
 import me.silvernine.tutorial.entity.User
-import java.util.stream.Collectors
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
