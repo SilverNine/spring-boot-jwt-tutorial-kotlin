@@ -36,14 +36,14 @@ class UserService(
     }
 
     @Transactional(readOnly = true)
-    fun getUserWithAuthorities(username: String?): UserDto? {
-        return from(userRepository.findOneWithAuthoritiesByUsername(username!!).orElse(null))
+    fun getUserWithAuthorities(username: String): UserDto {
+        return from(userRepository.findOneWithAuthoritiesByUsername(username).orElse(null))
     }
 
     @get:Transactional(readOnly = true)
-    val myUserWithAuthorities: UserDto?
+    val myUserWithAuthorities: UserDto
         get() = from(
             SecurityUtil.currentUsername
-                .flatMap { username: String? -> userRepository.findOneWithAuthoritiesByUsername(username!!) }
+                .flatMap { username: String -> userRepository.findOneWithAuthoritiesByUsername(username) }
                 .orElse(null))
 }

@@ -33,13 +33,13 @@ class UserController(
 
     @GetMapping("/user")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    fun getMyUserInfo(request: HttpServletRequest?): ResponseEntity<UserDto> {
+    fun getMyUserInfo(request: HttpServletRequest): ResponseEntity<UserDto> {
         return ResponseEntity.ok(userService.myUserWithAuthorities)
     }
 
     @GetMapping("/user/{username}")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    fun getUserInfo(@PathVariable username: String?): ResponseEntity<UserDto> {
+    fun getUserInfo(@PathVariable username: String): ResponseEntity<UserDto> {
         return ResponseEntity.ok(userService.getUserWithAuthorities(username))
     }
 }
