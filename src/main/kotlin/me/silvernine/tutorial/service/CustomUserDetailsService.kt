@@ -13,7 +13,9 @@ import java.util.function.Function
 import java.util.stream.Collectors
 
 @Component("userDetailsService")
-class CustomUserDetailsService(private val userRepository: UserRepository) : UserDetailsService {
+class CustomUserDetailsService(
+    private val userRepository: UserRepository
+    ) : UserDetailsService {
     @Transactional
     override fun loadUserByUsername(username: String): UserDetails {
         return userRepository.findOneWithAuthoritiesByUsername(username)

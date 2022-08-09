@@ -12,7 +12,9 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api")
-class UserController(private val userService: UserService) {
+class UserController(
+    private val userService: UserService
+    ) {
     @GetMapping("/hello")
     fun hello(): ResponseEntity<String> {
         return ResponseEntity.ok("hello")
