@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api")
@@ -28,7 +29,7 @@ class AuthController(tokenProvider: TokenProvider, authenticationManagerBuilder:
     }
 
     @PostMapping("/authenticate")
-    fun authorize(@RequestBody loginDto: LoginDto): ResponseEntity<TokenDto> {
+    fun authorize(@RequestBody @Valid loginDto: LoginDto): ResponseEntity<TokenDto> {
         val authenticationToken = UsernamePasswordAuthenticationToken(loginDto.username, loginDto.password)
         val authentication: Authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken)
         SecurityContextHolder.getContext().setAuthentication(authentication)

@@ -19,24 +19,22 @@ class UserService(private val userRepository: UserRepository, private val passwo
             throw DuplicateMemberException("이미 가입되어 있는 유저입니다.")
         }
 
-        val authority = Authority.builder()
-            .authorityName("ROLE_USER")
-            .build()
+        val authority = Authority("ROLE_USER")
 
-        val user = User.builder()
-            .username(userDto.username)
-            .password(passwordEncoder.encode(userDto.password))
-            .nickname(userDto.nickname)
-            .authorities(setOf(authority))
-            .activated(true)
-            .build()
+        val user = User(
+            username = userDto.username,
+            password = passwordEncoder.encode(userDto.password),
+            nickname = userDto.nickname,
+            authorities = setOf(authority),
+            isActivated = true
+        )
 
-        return from(userRepository.save(user))!!
+        return from(userRepository.save(user))
     }
 
     @Transactional(readOnly = true)
     fun getUserWithAuthorities(username: String?): UserDto? {
-        return from(userRepository.findOneWithAuthoritiesByUsername(username!!)!!.orElse(null))
+        return from(userRepository.findOneWithAuthoritiesByUsername(username!!).orElse(null))
     }
 
     @get:Transactional(readOnly = true)

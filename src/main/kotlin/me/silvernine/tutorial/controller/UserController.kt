@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*
 import java.io.IOException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api")
@@ -24,7 +25,7 @@ class UserController(private val userService: UserService) {
     }
 
     @PostMapping("/signup")
-    fun signup(@RequestBody userDto: UserDto): ResponseEntity<UserDto> {
+    fun signup(@RequestBody @Valid userDto: UserDto): ResponseEntity<UserDto> {
         return ResponseEntity.ok(userService.signup(userDto))
     }
 
