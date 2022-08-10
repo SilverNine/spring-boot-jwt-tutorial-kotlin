@@ -38,7 +38,10 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun getUserWithAuthorities(username: String): UserDto {
-        return from(userRepository.findOneWithAuthoritiesByUsername(username).orElse(null))
+        return from(
+            userRepository.findOneWithAuthoritiesByUsername(username)
+            .orElse(null)
+        )
     }
 
     @get:Transactional(readOnly = true)
