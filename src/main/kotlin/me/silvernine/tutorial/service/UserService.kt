@@ -5,6 +5,7 @@ import me.silvernine.tutorial.dto.UserDto.Companion.from
 import me.silvernine.tutorial.entity.Authority
 import me.silvernine.tutorial.entity.User
 import me.silvernine.tutorial.exception.DuplicateMemberException
+import me.silvernine.tutorial.exception.NotFoundMemberException
 import me.silvernine.tutorial.repository.UserRepository
 import me.silvernine.tutorial.util.SecurityUtil
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -44,6 +45,9 @@ class UserService(
     val myUserWithAuthorities: UserDto
         get() = from(
             SecurityUtil.currentUsername
-                .flatMap { username: String -> userRepository.findOneWithAuthoritiesByUsername(username) }
-                .orElse(null))
+                .flatMap {
+                    username: String -> userRepository.findOneWithAuthoritiesByUsername(username)
+                }
+                .orElse(null) ?: throw NotFoundMemberException("Member not found")
+        )
 }
