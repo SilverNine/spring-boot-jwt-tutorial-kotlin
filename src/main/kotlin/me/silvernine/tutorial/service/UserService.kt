@@ -48,6 +48,8 @@ class UserService(
                 .flatMap {
                     username: String -> userRepository.findOneWithAuthoritiesByUsername(username)
                 }
-                .orElse(null) ?: throw NotFoundMemberException("Member not found")
+                .orElseThrow {
+                    throw NotFoundMemberException("Member not found")
+                }
         )
 }
