@@ -17,7 +17,7 @@ class RestResponseExceptionHandler : ResponseEntityExceptionHandler() {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(value = [DuplicateMemberException::class])
     @ResponseBody
-    protected fun badRequest(ex: RuntimeException, request: WebRequest?): ErrorDto {
+    protected fun conflict(ex: RuntimeException, request: WebRequest?): ErrorDto {
         return ErrorDto(HttpStatus.CONFLICT.value(), ex.message ?: "")
     }
 
