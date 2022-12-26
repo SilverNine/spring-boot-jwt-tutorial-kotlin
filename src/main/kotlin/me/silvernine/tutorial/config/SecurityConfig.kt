@@ -4,12 +4,12 @@ import me.silvernine.tutorial.jwt.JwtAccessDeniedHandler
 import me.silvernine.tutorial.jwt.JwtAuthenticationEntryPoint
 import me.silvernine.tutorial.jwt.JwtSecurityConfig
 import me.silvernine.tutorial.jwt.TokenProvider
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -18,7 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.filter.CorsFilter
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
+@Configuration
 class SecurityConfig(
     private val tokenProvider: TokenProvider,
     private val corsFilter: CorsFilter,
@@ -28,15 +29,6 @@ class SecurityConfig(
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
-    }
-
-    @Bean
-    fun webSecurityCustomizer(): WebSecurityCustomizer {
-        return WebSecurityCustomizer { web: WebSecurity ->
-            web.ignoring().antMatchers(
-                "/h2-console/**", "/favicon.ico", "/error"
-            )
-        }
     }
 
     @Bean
@@ -64,10 +56,9 @@ class SecurityConfig(
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
             .and()
-            .authorizeRequests()
-            .antMatchers("/api/hello").permitAll()
-            .antMatchers("/api/authenticate").permitAll()
-            .antMatchers("/api/signup").permitAll()
+            .authorizeHttpRequests()
+            .requestMatchers("/api/hello", "/api/authenticate", "/api/signup").permitAll()
+            .requestMatchers(PathRequest.toH2Console()).permitAll()
             .anyRequest().authenticated()
 
             .and()

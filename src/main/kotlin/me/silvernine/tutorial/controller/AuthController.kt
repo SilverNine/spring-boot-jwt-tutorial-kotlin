@@ -1,5 +1,6 @@
 package me.silvernine.tutorial.controller
 
+import jakarta.validation.Valid
 import me.silvernine.tutorial.dto.LoginDto
 import me.silvernine.tutorial.dto.TokenDto
 import me.silvernine.tutorial.jwt.JwtFilter
@@ -15,14 +16,13 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api")
 class AuthController(
     private val tokenProvider: TokenProvider,
     private val authenticationManagerBuilder: AuthenticationManagerBuilder
-    ) {
+) {
     @PostMapping("/authenticate")
     fun authorize(@RequestBody @Valid loginDto: LoginDto): ResponseEntity<TokenDto> {
         val authenticationToken = UsernamePasswordAuthenticationToken(loginDto.username, loginDto.password)

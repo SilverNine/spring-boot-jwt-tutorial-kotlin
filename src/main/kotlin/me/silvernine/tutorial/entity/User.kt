@@ -1,6 +1,6 @@
 package me.silvernine.tutorial.entity
 
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "`user`")

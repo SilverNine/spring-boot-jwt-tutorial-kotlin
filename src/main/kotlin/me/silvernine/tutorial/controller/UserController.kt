@@ -1,20 +1,20 @@
 package me.silvernine.tutorial.controller
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import me.silvernine.tutorial.dto.UserDto
 import me.silvernine.tutorial.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.io.IOException
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api")
 class UserController(
     private val userService: UserService
-    ) {
+) {
     @GetMapping("/hello")
     fun hello(): ResponseEntity<String> {
         return ResponseEntity.ok("hello")
