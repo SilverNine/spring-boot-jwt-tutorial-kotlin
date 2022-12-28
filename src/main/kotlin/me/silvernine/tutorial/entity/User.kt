@@ -4,11 +4,11 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "`user`")
-data class User(
+class User(
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var userId: Long? = null,
+    val userId: Long? = null,
 
     @Column(name = "username", length = 50, unique = true)
     var username: String? = null,
@@ -28,5 +28,5 @@ data class User(
         joinColumns = [JoinColumn(name = "user_id", referencedColumnName = "user_id")],
         inverseJoinColumns = [JoinColumn(name = "authority_name", referencedColumnName = "authority_name")]
     )
-    var authorities: Set<Authority>? = null
+    val authorities: Set<Authority>? = null
 )

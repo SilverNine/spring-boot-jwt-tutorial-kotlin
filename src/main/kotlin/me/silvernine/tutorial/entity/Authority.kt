@@ -7,8 +7,8 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "authority")
-data class Authority(
+class Authority(
     @Id
     @Column(name = "authority_name", length = 50)
-    var authorityName: String? = null
+    val authorityName: String? = null
 )
