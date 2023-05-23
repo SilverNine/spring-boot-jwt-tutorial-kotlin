@@ -33,36 +33,37 @@ class SecurityConfig(
 
     @Bean
     @Throws(Exception::class)
-    fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
-        httpSecurity
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http
             // token을 사용하는 방식이기 때문에 csrf를 disable합니다.
-            .csrf().disable()
+            .csrf { it.disable() }
 
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter::class.java)
 
-            .exceptionHandling()
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-            .accessDeniedHandler(jwtAccessDeniedHandler)
+            .exceptionHandling{
+                it.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                  .accessDeniedHandler(jwtAccessDeniedHandler)
+            }
 
-            // enable h2-console
-            .and()
-            .headers()
-            .frameOptions()
-            .sameOrigin()
+            .authorizeHttpRequests{
+                it.requestMatchers("/api/hello", "/api/authenticate", "/api/signup").permitAll()
+                .requestMatchers(PathRequest.toH2Console()).permitAll()
+                .anyRequest().authenticated()
+            }
 
             // 세션을 사용하지 않기 때문에 STATELESS로 설정
-            .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionManagement{
+                it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            }
 
-            .and()
-            .authorizeHttpRequests()
-            .requestMatchers("/api/hello", "/api/authenticate", "/api/signup").permitAll()
-            .requestMatchers(PathRequest.toH2Console()).permitAll()
-            .anyRequest().authenticated()
+            // enable h2-console
+            .headers{
+                it.frameOptions{ options ->
+                    options.sameOrigin()
+                }
+            }
 
-            .and()
             .apply(JwtSecurityConfig(tokenProvider))
-        return httpSecurity.build()
+        return http.build()
     }
 }
