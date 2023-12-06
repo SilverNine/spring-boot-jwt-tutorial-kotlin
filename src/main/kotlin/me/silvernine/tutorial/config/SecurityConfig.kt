@@ -40,30 +40,29 @@ class SecurityConfig(
 
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter::class.java)
 
-            .exceptionHandling{
+            .exceptionHandling {
                 it.authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                  .accessDeniedHandler(jwtAccessDeniedHandler)
+                    .accessDeniedHandler(jwtAccessDeniedHandler)
             }
 
-            .authorizeHttpRequests{
+            .authorizeHttpRequests {
                 it.requestMatchers("/api/hello", "/api/authenticate", "/api/signup").permitAll()
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
-                .anyRequest().authenticated()
+                    .requestMatchers(PathRequest.toH2Console()).permitAll()
+                    .anyRequest().authenticated()
             }
 
             // 세션을 사용하지 않기 때문에 STATELESS로 설정
-            .sessionManagement{
+            .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
 
             // enable h2-console
-            .headers{
-                it.frameOptions{ options ->
+            .headers {
+                it.frameOptions { options ->
                     options.sameOrigin()
                 }
             }
-
-            .apply(JwtSecurityConfig(tokenProvider))
+            .with(JwtSecurityConfig(tokenProvider)) {}
         return http.build()
     }
 }
