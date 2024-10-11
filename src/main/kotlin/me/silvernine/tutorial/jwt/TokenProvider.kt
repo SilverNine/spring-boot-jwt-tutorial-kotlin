@@ -19,16 +19,12 @@ import java.util.stream.Collectors
 
 @Component
 class TokenProvider(
-        @param:Value("\${jwt.secret}") private val secret: String,
-        @Value("\${jwt.token-validity-in-seconds}") tokenValidityInSeconds: Long
+    @param:Value("\${jwt.secret}") private val secret: String,
+    @Value("\${jwt.token-validity-in-seconds}") tokenValidityInSeconds: Long
 ) : InitializingBean {
     private val logger = LoggerFactory.getLogger(TokenProvider::class.java)
-    private val tokenValidityInMilliseconds: Long
+    private val tokenValidityInMilliseconds: Long = tokenValidityInSeconds * 1000
     private var key: Key? = null
-
-    init {
-        tokenValidityInMilliseconds = tokenValidityInSeconds * 1000
-    }
 
     companion object {
         private const val AUTHORITIES_KEY = "auth"
@@ -40,31 +36,32 @@ class TokenProvider(
 
     fun createToken(authentication: Authentication): String {
         val authorities = authentication.authorities.stream()
-                .map { obj: GrantedAuthority -> obj.authority }
-                .collect(Collectors.joining(","))
+            .map { obj: GrantedAuthority -> obj.authority }
+            .collect(Collectors.joining(","))
 
         val validity = Date(Date().time + tokenValidityInMilliseconds)
 
         return Jwts.builder()
-                .setSubject(authentication.name)
-                .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
-                .compact()
+            .setSubject(authentication.name)
+            .claim(AUTHORITIES_KEY, authorities)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .setExpiration(validity)
+            .compact()
     }
 
     fun getAuthentication(token: String?): Authentication {
         val claims = Jwts
-                .parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .body
+            .parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .body
 
         val authorities: Collection<GrantedAuthority> = Arrays
-                .stream(claims[AUTHORITIES_KEY].toString().split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
-                .map { role: String? -> SimpleGrantedAuthority(role) }
-                .collect(Collectors.toList())
+            .stream(claims[AUTHORITIES_KEY].toString().split(",".toRegex()).dropLastWhile { it.isEmpty() }
+                .toTypedArray())
+            .map { role: String? -> SimpleGrantedAuthority(role) }
+            .collect(Collectors.toList())
 
         val principal = User(claims.subject, "", authorities)
 
