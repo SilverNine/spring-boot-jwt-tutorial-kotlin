@@ -19,17 +19,17 @@ class UserService(
     ) {
     @Transactional
     fun signup(userDto: UserDto): UserDto {
-        if (userRepository.findOneWithAuthoritiesByUsername(userDto.username!!).orElse(null) != null) {
+        val username = requireNotNull(userDto.username) { "username은 필수입니다." }
+        val password = requireNotNull(userDto.password) { "password는 필수입니다." }
+        if (userRepository.findOneWithAuthoritiesByUsername(username).isPresent) {
             throw DuplicateMemberException("이미 가입되어 있는 유저입니다.")
         }
 
-        val authority = Authority("ROLE_USER")
-
         val user = User(
-            username = userDto.username,
-            password = passwordEncoder.encode(userDto.password),
+            username = username,
+            password = requireNotNull(passwordEncoder.encode(password)),
             nickname = userDto.nickname,
-            authorities = setOf(authority),
+            authorities = setOf(Authority("ROLE_USER")),
             isActivated = true
         )
 
@@ -37,22 +37,15 @@ class UserService(
     }
 
     @Transactional(readOnly = true)
-    fun getUserWithAuthorities(username: String): UserDto {
-        return from(
-            userRepository.findOneWithAuthoritiesByUsername(username)
-            .orElse(null)
-        )
-    }
+    fun getUserWithAuthorities(username: String): UserDto =
+        userRepository.findOneWithAuthoritiesByUsername(username)
+            .map(::from)
+            .orElseThrow { NotFoundMemberException("$username -> 데이터베이스에서 찾을 수 없습니다.") }
 
-    @get:Transactional(readOnly = true)
-    val myUserWithAuthorities: UserDto
-        get() = from(
-            SecurityUtil.currentUsername
-                .flatMap {
-                    username: String -> userRepository.findOneWithAuthoritiesByUsername(username)
-                }
-                .orElseThrow {
-                    throw NotFoundMemberException("Member not found")
-                }
-        )
+    @Transactional(readOnly = true)
+    fun getMyUserWithAuthorities(): UserDto =
+        SecurityUtil.currentUsername
+            .flatMap { username -> userRepository.findOneWithAuthoritiesByUsername(username) }
+            .map(::from)
+            .orElseThrow { NotFoundMemberException("Member not found") }
 }

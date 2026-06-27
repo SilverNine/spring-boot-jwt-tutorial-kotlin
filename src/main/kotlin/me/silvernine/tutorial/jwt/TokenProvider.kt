@@ -3,7 +3,7 @@ package me.silvernine.tutorial.jwt
 import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
-import io.jsonwebtoken.security.SignatureException
+import io.jsonwebtoken.security.SecurityException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Value
@@ -13,8 +13,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
-import java.util.*
-import java.util.stream.Collectors
+import java.util.Date
 import javax.crypto.SecretKey
 
 @Component
@@ -35,9 +34,7 @@ class TokenProvider(
     }
 
     fun createToken(authentication: Authentication): String {
-        val authorities = authentication.authorities.stream()
-            .map { obj: GrantedAuthority -> obj.authority }
-            .collect(Collectors.joining(","))
+        val authorities = authentication.authorities.joinToString(",") { it.authority ?: "" }
 
         val validity = Date(Date().time + tokenValidityInMilliseconds)
 
@@ -57,11 +54,10 @@ class TokenProvider(
             .parseSignedClaims(token)
             .payload
 
-        val authorities: Collection<GrantedAuthority> = Arrays
-            .stream(claims[AUTHORITIES_KEY].toString().split(",".toRegex()).dropLastWhile { it.isEmpty() }
-                .toTypedArray())
-            .map { role: String -> SimpleGrantedAuthority(role) }
-            .collect(Collectors.toList())
+        val authorities: Collection<GrantedAuthority> = claims[AUTHORITIES_KEY].toString()
+            .split(",")
+            .filter { it.isNotEmpty() }
+            .map { SimpleGrantedAuthority(it) }
 
         val principal = User(claims.subject, "", authorities)
 
@@ -72,7 +68,7 @@ class TokenProvider(
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token)
             return true
-        } catch (e: SignatureException) {
+        } catch (e: SecurityException) {
             logger.info("잘못된 JWT 서명입니다.")
         } catch (e: MalformedJwtException) {
             logger.info("잘못된 JWT 서명입니다.")

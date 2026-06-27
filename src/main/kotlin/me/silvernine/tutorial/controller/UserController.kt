@@ -1,6 +1,5 @@
 package me.silvernine.tutorial.controller
 
-import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import me.silvernine.tutorial.dto.UserDto
@@ -33,8 +32,8 @@ class UserController(
 
     @GetMapping("/user")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    fun getMyUserInfo(request: HttpServletRequest): ResponseEntity<UserDto> {
-        return ResponseEntity.ok(userService.myUserWithAuthorities)
+    fun getMyUserInfo(): ResponseEntity<UserDto> {
+        return ResponseEntity.ok(userService.getMyUserWithAuthorities())
     }
 
     @GetMapping("/user/{username}")

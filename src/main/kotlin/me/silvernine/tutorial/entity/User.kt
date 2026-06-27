@@ -11,10 +11,10 @@ class User(
     val userId: Long? = null,
 
     @Column(name = "username", length = 50, unique = true)
-    var username: String? = null,
+    var username: String,
 
     @Column(name = "password", length = 100)
-    var password: String? = null,
+    var password: String,
 
     @Column(name = "nickname", length = 50)
     var nickname: String? = null,
@@ -28,5 +28,5 @@ class User(
         joinColumns = [JoinColumn(name = "user_id", referencedColumnName = "user_id")],
         inverseJoinColumns = [JoinColumn(name = "authority_name", referencedColumnName = "authority_name")]
     )
-    val authorities: Set<Authority>? = null
+    val authorities: Set<Authority> = emptySet()
 )
