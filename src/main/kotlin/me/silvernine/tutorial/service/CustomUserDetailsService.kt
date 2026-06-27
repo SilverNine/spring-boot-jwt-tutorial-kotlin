@@ -29,12 +29,12 @@ class CustomUserDetailsService(
         }
 
         val grantedAuthorities = user.authorities!!.stream()
-            .map { authority: Authority -> SimpleGrantedAuthority(authority.authorityName) }
+            .map { authority: Authority -> SimpleGrantedAuthority(authority.authorityName!!) }
             .collect(Collectors.toList())
 
         return User(
-            user.username,
-            user.password,
+            user.username!!,
+            user.password!!,
             grantedAuthorities
         )
     }

@@ -3,7 +3,7 @@ package me.silvernine.tutorial.jwt
 import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
-import io.jsonwebtoken.security.SecurityException
+import io.jsonwebtoken.security.SignatureException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Value
@@ -13,9 +13,9 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
-import java.security.Key
 import java.util.*
 import java.util.stream.Collectors
+import javax.crypto.SecretKey
 
 @Component
 class TokenProvider(
@@ -24,7 +24,7 @@ class TokenProvider(
 ) : InitializingBean {
     private val logger = LoggerFactory.getLogger(TokenProvider::class.java)
     private val tokenValidityInMilliseconds: Long = tokenValidityInSeconds * 1000
-    private var key: Key? = null
+    private lateinit var key: SecretKey
 
     companion object {
         private const val AUTHORITIES_KEY = "auth"
@@ -42,25 +42,25 @@ class TokenProvider(
         val validity = Date(Date().time + tokenValidityInMilliseconds)
 
         return Jwts.builder()
-            .setSubject(authentication.name)
+            .subject(authentication.name)
             .claim(AUTHORITIES_KEY, authorities)
-            .signWith(key, SignatureAlgorithm.HS512)
-            .setExpiration(validity)
+            .signWith(key, Jwts.SIG.HS512)
+            .expiration(validity)
             .compact()
     }
 
     fun getAuthentication(token: String?): Authentication {
         val claims = Jwts
-            .parserBuilder()
-            .setSigningKey(key)
+            .parser()
+            .verifyWith(key)
             .build()
-            .parseClaimsJws(token)
-            .body
+            .parseSignedClaims(token)
+            .payload
 
         val authorities: Collection<GrantedAuthority> = Arrays
             .stream(claims[AUTHORITIES_KEY].toString().split(",".toRegex()).dropLastWhile { it.isEmpty() }
                 .toTypedArray())
-            .map { role: String? -> SimpleGrantedAuthority(role) }
+            .map { role: String -> SimpleGrantedAuthority(role) }
             .collect(Collectors.toList())
 
         val principal = User(claims.subject, "", authorities)
@@ -70,9 +70,9 @@ class TokenProvider(
 
     fun validateToken(token: String?): Boolean {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(token)
             return true
-        } catch (e: SecurityException) {
+        } catch (e: SignatureException) {
             logger.info("잘못된 JWT 서명입니다.")
         } catch (e: MalformedJwtException) {
             logger.info("잘못된 JWT 서명입니다.")
