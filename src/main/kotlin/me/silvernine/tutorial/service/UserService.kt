@@ -47,5 +47,5 @@ class UserService(
         SecurityUtil.currentUsername
             .flatMap { username -> userRepository.findOneWithAuthoritiesByUsername(username) }
             .map(::from)
-            .orElseThrow { NotFoundMemberException("Member not found") }
+            .orElseThrow { NotFoundMemberException("로그인한 사용자를 찾을 수 없습니다.") }
 }

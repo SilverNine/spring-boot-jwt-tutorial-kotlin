@@ -1,6 +1,3 @@
 package me.silvernine.tutorial.exception
 
-class NotFoundMemberException(
-    message: String? = null,
-    cause: Throwable? = null
-) : RuntimeException(message, cause)
+class NotFoundMemberException(message: String) : RuntimeException(message)

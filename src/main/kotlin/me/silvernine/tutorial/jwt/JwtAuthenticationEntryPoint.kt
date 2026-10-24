@@ -2,20 +2,24 @@ package me.silvernine.tutorial.jwt
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.stereotype.Component
-import java.io.IOException
+import org.springframework.web.servlet.HandlerExceptionResolver
 
+/**
+ * 인증 없이 보호된 주소에 들어오면 401을 돌려줍니다.
+ *
+ * 필터 단계의 예외는 @RestControllerAdvice 까지 가지 않습니다. 그래서 MVC 의 HandlerExceptionResolver 에
+ * 넘겨, 컨트롤러 예외와 같은 ProblemDetail 형식으로 응답하게 합니다.
+ */
 @Component
-class JwtAuthenticationEntryPoint : AuthenticationEntryPoint {
-    @Throws(IOException::class)
-    override fun commence(
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-        authException: AuthenticationException
-    ) {
-        // 유효한 자격증명을 제공하지 않고 접근하려 할때 401
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+class JwtAuthenticationEntryPoint(
+    @param:Qualifier("handlerExceptionResolver") private val resolver: HandlerExceptionResolver,
+) : AuthenticationEntryPoint {
+
+    override fun commence(request: HttpServletRequest, response: HttpServletResponse, authException: AuthenticationException) {
+        resolver.resolveException(request, response, null, authException)
     }
 }

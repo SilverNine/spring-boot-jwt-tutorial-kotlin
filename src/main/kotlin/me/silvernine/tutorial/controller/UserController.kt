@@ -1,13 +1,11 @@
 package me.silvernine.tutorial.controller
 
-import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import me.silvernine.tutorial.dto.UserDto
 import me.silvernine.tutorial.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import java.io.IOException
 
 @RestController
 @RequestMapping("/api")
@@ -19,11 +17,6 @@ class UserController(
         return ResponseEntity.ok("hello")
     }
 
-    @PostMapping("/test-redirect")
-    @Throws(IOException::class)
-    fun testRedirect(response: HttpServletResponse) {
-        response.sendRedirect("/api/user")
-    }
 
     @PostMapping("/signup")
     fun signup(@RequestBody @Valid userDto: UserDto): ResponseEntity<UserDto> {
